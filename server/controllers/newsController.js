@@ -1,89 +1,93 @@
-const News = require("../models/blogModel.js");
+const News = require('../models/blogModel');
 
-// Create a news article 
-const createNews = async (req,res)=>{
-    const chknews = await News.find({title : req.body.title})
-    if(chknews.length === 0){
-        try {
-            const news = new News({
-                title: req.body.title,
-                description: req.body.description
-            })
-    
-            const saveToDB = await news.save();
-            return res.status(200).json(saveToDB); // Ensure only one response is sent
+// Public: Get all blogs
+const getAllBlogs = async (req, res) => {
+    try {
+        const blogs = await News.find();
+        res.status(200).json(blogs);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
+
+// Public: Get a single blog by ID
+const getBlogById = async (req, res) => {
+    try {
+        const blog = await News.findById(req.params.id);
+        if (!blog) {
+            return res.status(404).json({ message: 'Blog not found' });
         }
-catch (error) {
-        return res.status(400).json({ message: error.message }); // Add return to ensure only one response
-    }}else {
-        return res.status(400).json({ message: "News already available" }); // Add return here to stop further execution
-    }
-}
-
-
-//Get all the articles from the news 
-const getAllNews = async (req,res)=>{
-    try {
-        const news = await News.find()
-        res.status(200).json(news)
+        res.status(200).json(blog);
     } catch (error) {
-        res.status(400).json({message: error.message})
-        
+        res.status(400).json({ message: error.message });
     }
-}
+};
 
-
-//Get a single news article
-
-const getNews = async (req,res)=>{
+// Protected: Create a new blog (login required)
+const createBlog = async (req, res) => {
     try {
-        const news = await News.findOne({title: req.params.title})
-        console.log(news)
-        return res.status(200).json(news)
-    } catch (error) {
-        res.status(400).json({message: error.message})
-        
-    }
-}
-
-// Update a news article by ID
-const updateNews = async (req, res) => {
-    const { id } = req.params; // Get the news article ID from URL
-    try {
-        const updatedNews = await News.findByIdAndUpdate(id, req.body, {
-            new: true, // Return the updated document
-            runValidators: true, // Ensure validation is applied to the updated document
+        const blog = new News({
+            title: req.body.title,
+            description: req.body.description,
+            author: req.user._id  // Set the user ID as the author
         });
 
-        if (!updatedNews) {
-            return res.status(404).json({ message: "News article not found" });
-        }
-        return res.status(200).json(updatedNews);
+        const savedBlog = await blog.save();
+        res.status(201).json(savedBlog);
     } catch (error) {
-        return res.status(400).json({ message: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
-// Delete a news article by ID
-const deleteNews = async (req, res) => {
-    const { id } = req.params; // Get the news article ID from URL
+// Protected: Update an existing blog (login required)
+const updateBlog = async (req, res) => {
     try {
-        const deletedNews = await News.findByIdAndDelete(id);
-        if (!deletedNews) {
-            return res.status(404).json({ message: "News article not found" });
+        const blog = await News.findById(req.params.id);
+
+        if (!blog) {
+            return res.status(404).json({ message: 'Blog not found' });
         }
-        return res.status(200).json({ message: "News article deleted successfully" });
+
+        // Ensure the blog's author matches the logged-in user
+        if (blog.author.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: 'Not authorized to update this blog' });
+        }
+
+        blog.title = req.body.title || blog.title;
+        blog.description = req.body.description || blog.description;
+
+        const updatedBlog = await blog.save();
+        res.status(200).json(updatedBlog);
     } catch (error) {
-        return res.status(400).json({ message: error.message });
+        res.status(400).json({ message: error.message });
     }
 };
 
+// Protected: Delete a blog (login required)
+const deleteBlog = async (req, res) => {
+    try {
+        const blog = await News.findById(req.params.id);
 
+        if (!blog) {
+            return res.status(404).json({ message: 'Blog not found' });
+        }
+
+        // Ensure the blog's author matches the logged-in user
+        if (blog.author.toString() !== req.user._id.toString()) {
+            return res.status(401).json({ message: 'Not authorized to delete this blog' });
+        }
+
+        await blog.remove();
+        res.status(200).json({ message: 'Blog deleted' });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+};
 
 module.exports = {
-    createNews,
-    getAllNews,
-    getNews,
-    updateNews,
-    deleteNews,
+    getAllBlogs,
+    getBlogById,
+    createBlog,
+    updateBlog,
+    deleteBlog
 };
