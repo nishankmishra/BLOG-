@@ -1,0 +1,74 @@
+# Dependency directories
+node_modules/
+
+# Environment variables file
+.env
+
+# Build files
+build/
+dist/
+
+# IDE/Editor files
+.idea/
+.vscode/
+
+# macOS specific files
+.DS_Store
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Dependency lock files
+yarn.lock
+package-lock.json
+
+# Coverage directory
+coverage/
+
+# Jest test result cache
+.jest-cache/
+
+# Next.js build output
+.next/
+out/
+
+# Compiled TypeScript output
+*.tsbuildinfo
+
+# Firebase configuration
+firebase.json
+.firebaserc
+
+# Netlify configuration
+.netlify/
+
+# Parcel.js cache
+.cache/
+dist/
+
+# Build cache
+.cache-loader/
+
+# Storybook directory
+.storybook/
+
+# PnP temporary folder
+.pnp/
+
+# Yarn integrity file
+.yarn-integrity
+
+# vuepress build output
+.vuepress/dist
+
+# Serverless directories
+.serverless/

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
@@ -9,27 +9,30 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
-  loginForm = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required]
-  })
-  
- 
+export class LoginComponent implements OnInit {
+  loginForm: any;
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private msgService: MessageService
-  ) { }
+  ) {}
 
-
-
+  ngOnInit() {
+    this.loginForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', Validators.required]
+    });
+  }
 
   get email() {
     return this.loginForm.controls['email'];
   }
-  get password() { return this.loginForm.controls['password']; }
+
+  get password() {
+    return this.loginForm.controls['password'];
+  }
 
   loginUser() {
     const { email, password } = this.loginForm.value;
@@ -39,13 +42,12 @@ export class LoginComponent {
           sessionStorage.setItem('email', email as string);
           this.router.navigate(['/home']);
         } else {
-          this.msgService.add({ severity: 'error', summary: 'Error', detail: 'email or password is wrong' });
+          this.msgService.add({ severity: 'error', summary: 'Error', detail: 'Email or password is incorrect' });
         }
       },
       error => {
         this.msgService.add({ severity: 'error', summary: 'Error', detail: 'Something went wrong' });
       }
-
-    )
+    );
   }
 }
